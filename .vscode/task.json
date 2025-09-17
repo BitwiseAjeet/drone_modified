@@ -1,0 +1,84 @@
+
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Build Sender",
+            "command": "C:/msys64/mingw64/bin/gcc.exe",
+            "args": [
+                "-Wall", "-Wextra", "-std=c99", "-g",
+                "-D_WIN32_WINNT=0x0601", "-Isrc",
+                "-o", "${workspaceFolder}/bin/sender.exe",
+                "${workspaceFolder}/src/sender.c",
+                "${workspaceFolder}/src/common.c",
+                "${workspaceFolder}/src/crypto_utils.c",
+                "-lmbedtls", "-lmbedx509", "-lmbedcrypto", "-lws2_32"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Build sender with MSYS2"
+        },
+        {
+            "type": "shell",
+            "label": "Build Receiver",
+            "command": "C:/msys64/mingw64/bin/gcc.exe",
+            "args": [
+                "-Wall", "-Wextra", "-std=c99", "-g",
+                "-D_WIN32_WINNT=0x0601", "-Isrc",
+                "-o", "${workspaceFolder}/bin/receiver.exe",
+                "-IC:/Users/Ajeet/drone_security_system/libs/mbedtls/include",
+                "${workspaceFolder}/src/receiver.c",
+                "${workspaceFolder}/src/common.c",
+                "${workspaceFolder}/src/crypto_utils.c",
+                "-lmbedtls", "-lmbedx509", "-lmbedcrypto", "-lws2_32"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Build receiver with MSYS2"
+        },
+        {
+            "type": "shell",
+            "label": "Build All",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Build Sender", "Build Receiver"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "detail": "Build both sender and receiver"
+        },
+        {
+            "type": "shell",
+            "label": "Test MSYS2 Setup",
+            "command": "C:/msys64/mingw64/bin/gcc.exe",
+            "args": [
+                "--version"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always"
+            },
+            "detail": "Verify MSYS2 installation"
+        }
+    ]
+}
