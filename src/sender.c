@@ -1,5 +1,5 @@
 
-/// ==================== common.h ====================
+
 #ifndef COMMON_H
 #define COMMON_H
 
@@ -86,8 +86,8 @@ typedef struct {
 int init_network(void);
 void cleanup_network(void);
 uint32_t get_timestamp(void);
-void print_hex(const char* label, const uint8_t* data, size_t len);
-void log_message(const char* level, const char* format, ...);
+//void print_hex(const char* label, const uint8_t* data, size_t len);
+//void log_message(const char* level, const char* format, ...);
 int generate_random_bytes(uint8_t* buffer, size_t length);
 
 #endif // COMMON_H
@@ -96,8 +96,7 @@ int generate_random_bytes(uint8_t* buffer, size_t length);
 #include "common.h"
 #include <stdarg.h>
 
-//static uint32_t sequence_counter = 0;
-// Add these to your common.c
+//static uint32_t sequence_counter = 0
 /*uint32_t get_timestamp(void) {
     return (uint32_t)time(NULL);
 }*/
@@ -190,7 +189,7 @@ void crypto_cleanup(crypto_context_t* ctx);
 int encrypt_message(crypto_context_t* ctx, const uint8_t* plaintext, 
                    size_t plaintext_len, secure_message_t* secure_msg, 
                    uint8_t msg_type);
-int decrypt_message(crypto_context_t* ctx, const secure_message_t* secure_msg, 
+int decrypt_message_sender(crypto_context_t* ctx, const secure_message_t* secure_msg, 
                    uint8_t* plaintext, size_t* plaintext_len);
 int load_keys_from_file(crypto_context_t* ctx, const char* key_file);
 int save_keys_to_file(const crypto_context_t* ctx, const char* key_file);
@@ -296,7 +295,7 @@ int derive_keys(crypto_context_t* ctx, const char* password, const uint8_t* salt
     return 0;
 }*/
 
-int decrypt_message(crypto_context_t* ctx, const secure_message_t* secure_msg, 
+int decrypt_message_sender(crypto_context_t* ctx, const secure_message_t* secure_msg, 
                    uint8_t* plaintext, size_t* plaintext_len) {
     int ret = 0;
     uint8_t computed_hmac[HMAC_SIZE];
@@ -316,7 +315,7 @@ int decrypt_message(crypto_context_t* ctx, const secure_message_t* secure_msg,
     if (secure_msg->sequence_number <= ctx->sequence_number) {
         log_message("WARNING", "Possible replay attack detected (seq: %u <= %u)", 
                     secure_msg->sequence_number, ctx->sequence_number);
-        // In production, you might want to return an error here
+        
     }
     ctx->sequence_number = secure_msg->sequence_number;
 
@@ -361,7 +360,7 @@ int decrypt_message(crypto_context_t* ctx, const secure_message_t* secure_msg,
     return 0;
 }
 
-// ==================== sender.c (continued) ====================
+// ==================== sender.c ====================
 #include "common.h"
 #include "crypto_utils.h"
 

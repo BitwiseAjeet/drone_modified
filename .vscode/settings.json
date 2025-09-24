@@ -58,6 +58,8 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "aes.h": "c",
-    "md.h": "c"
+    "md.h": "c",
+    "crypto_utils.h": "c",
+    "mavlink.h": "c"
   }
 }

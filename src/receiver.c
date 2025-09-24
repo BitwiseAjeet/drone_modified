@@ -57,25 +57,25 @@ void handle_signal(int sig) {
     exit(0);
 }
 // Drone sensor data structures
-typedef struct {
+/*typedef struct {
     double latitude;
     double longitude;
     double altitude;
     float speed;
     uint8_t satellites;
-} gps_data_t;
+} gps_data_t;*/
 
 void process_gps_data(const gps_data_t* gps) {
     log_message("INFO", "GPS Data - Lat: %.6f, Lon: %.6f, Alt: %.1fm, Speed: %.1fkm/h, Sats: %d",
                 gps->latitude, gps->longitude, gps->altitude, gps->speed, gps->satellites);
 }
 
-typedef struct {
+/*typedef struct {
     float accel_x, accel_y, accel_z;
     float gyro_x, gyro_y, gyro_z;
     float mag_x, mag_y, mag_z;
     uint32_t timestamp;
-} imu_data_t;
+} imu_data_t;*/
 void process_imu_data(const imu_data_t* imu) {
     log_message("INFO", "IMU Data - Accel(%.2f,%.2f,%.2f) Gyro(%.1f,%.1f,%.1f) Mag(%.1f,%.1f,%.1f)",
                 imu->accel_x, imu->accel_y, imu->accel_z,

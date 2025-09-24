@@ -15,6 +15,7 @@
 #define MAX_DATA_SIZE 512
 #define SERVER_PORT 8888
 #define HMAC_SIZE 32
+#define HMAC_KEY_SIZE 32
 
 typedef struct {
     mbedtls_aes_context aes_ctx;
@@ -83,5 +84,11 @@ int crypto_encrypt(crypto_context_t* ctx, const uint8_t* plaintext,
 int crypto_decrypt(crypto_context_t* ctx, const uint8_t *ciphertext,
                   size_t ciphertext_len, uint8_t* plaintext, size_t* plaintext_len);  
 static int derive_keys(crypto_context_t* ctx, const char* password, const uint8_t* salt);
-
+int load_keys_from_file(crypto_context_t* ctx, const char* key_file);
+int save_keys_to_file(const crypto_context_t* ctx, const char* key_file);
+int encrypt_message(crypto_context_t* ctx, const uint8_t* data, size_t data_len, 
+                   secure_message_t* secure_msg, uint8_t msg_type);
+int decrypt_message(crypto_context_t* ctx, const secure_message_t* secure_msg, 
+                   uint8_t* decrypted_data, size_t* decrypted_len);
 #endif
+//  int ret = decrypt_message(ctx, secure_msg, decrypted_data, &decrypted_len);

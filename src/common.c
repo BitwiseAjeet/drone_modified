@@ -1,5 +1,6 @@
 #include "common.h"
-
+#include <stdarg.h>
+#include <time.h>
 
 int init_network(void) {
 #ifdef _WIN32
@@ -12,6 +13,8 @@ WSADATA wsaData;
 #endif
     return 0;
 }
+
+
 
 void cleanup_network(void) {
 #ifdef _WIN32
@@ -27,3 +30,4 @@ void print_message(const drone_message_t *msg) {
 uint32_t get_timestamp(void) {
     return (uint32_t)time(NULL);
 }
+
