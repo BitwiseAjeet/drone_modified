@@ -22,7 +22,7 @@ typedef struct {
     uint32_t msg_id;
     uint8_t payload[MAX_PAYLOAD_LEN];
     uint8_t payload_len;
-} mavlink_message_t;
+} mavlink_message_t1;
 
 // Function to calculate MAVLink CRC
 uint16_t mavlink_crc_calculate(const uint8_t *buffer, size_t length) {
@@ -36,7 +36,7 @@ uint16_t mavlink_crc_calculate(const uint8_t *buffer, size_t length) {
 }
 
 // Parse MAVLink v2 packet
-int parse_mavlink(const uint8_t *buffer, size_t len, mavlink_message_t *msg) {
+int parse_mavlink(const uint8_t *buffer, size_t len, mavlink_message_t1 *msg) {
     if (len < 12 || buffer[0] != 0xFD) {
         return -1; // Invalid magic or too short
     }
@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
-        mavlink_message_t msg;
+        mavlink_message_t1 msg;
         if (parse_mavlink(buffer, (size_t)received, &msg) != 0) {
             log_message("WARNING", "Invalid MAVLink packet received (%zd bytes)", received);
             continue;

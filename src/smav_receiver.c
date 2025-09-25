@@ -28,6 +28,36 @@ typedef struct {
     uint8_t payload_len;
 } outer_mavlink_message_t;
 
+void log_message(const char* level, const char* format, ...) {
+    time_t now = time(NULL);
+    struct tm* tm_info = localtime(&now);
+    char time_str[20];
+    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
+    
+    printf("[%s] %s: ", time_str, level);
+    
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+    
+    printf("\n");
+    fflush(stdout);
+}
+
+void print_hex(const char* prefix, const uint8_t* data, size_t len) {
+    if (prefix && strlen(prefix) > 0) {
+        printf("%s", prefix);
+    }
+    
+    for (size_t i = 0; i < len; i++) {
+        printf("%02x ", data[i]);
+        if ((i + 1) % 16 == 0) printf("\n");
+    }
+    if (len % 16 != 0) printf("\n");
+    fflush(stdout);
+    }
+
 uint16_t mavlink_crc_calculate(const uint8_t *buffer, size_t length) {
     uint16_t crc = 0xFFFF;
     for (size_t i = 0; i < length; i++) {
@@ -98,27 +128,22 @@ void cleanup_receiver(void) {
 
 // Process standard MAVLink GPS_RAW_INT message
 void process_gps_raw_int(const mavlink_gps_raw_int_t* gps) {
-    if (!fc_initialized) {
-        log_message("WARNING", "GPS data received but FC not initialized");
-        return;
-    }
+    log_message("INFO", "GPS Data - Lat: %.6f, Lon: %.6f, Alt: %.1fm, Sats: %d", 
+                gps->lat / 1e7, gps->lon / 1e7, gps->alt / 1000.0f, gps->satellites_visible);
     
-    log_message("INFO", "GPS Data - Lat: %.6f, Lon: %.6f, Alt: %.1fm, Sats: %d, Fix: %d",
-                gps->lat / 1e7, gps->lon / 1e7, gps->alt / 1000.0f, 
-                gps->satellites_visible, gps->fix_type);
+    if (!fc_initialized) {
+        log_message("WARNING", "GPS ignored - FC not authenticated");
+    }
 }
 
 // Process standard MAVLink ATTITUDE message
 void process_attitude(const mavlink_attitude_t* att) {
-    if (!fc_initialized) {
-        log_message("WARNING", "IMU data received but FC not initialized");
-        return;
-    }
+    log_message("INFO", "IMU Data - Roll: %.1f, Pitch: %.1f, Yaw: %.1f deg",
+                att->roll * 180.0f / 3.14159f, att->pitch * 180.0f / 3.14159f, att->yaw * 180.0f / 3.14159f);
     
-    log_message("INFO", "IMU Data - Roll: %.2f, Pitch: %.2f, Yaw: %.2f deg",
-                att->roll * 180.0f / 3.14159f, 
-                att->pitch * 180.0f / 3.14159f, 
-                att->yaw * 180.0f / 3.14159f);
+    if (!fc_initialized) {
+        log_message("WARNING", "IMU ignored - FC not authenticated");
+    }
 }
 
 // Process standard MAVLink HEARTBEAT message

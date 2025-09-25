@@ -3,19 +3,22 @@
         {
             "name": "windows-gcc-x64",
             "includePath": [
-                 "${workspaceFolder}/**",
-                 "${workspaceFolder}/src",
-                 "${workspaceFolder}/mavlink",
-                 "${workspaceFolder}/mavlink/generated_common",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/mavlink",
+                "${workspaceFolder}/mavlink/generated_common",
+                "${workspaceFolder}/libs/mbedtls/include",
                 "C:/msys64/mingw64/include",
                 "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include",
-                "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include-fixed"],
-            "cStandard": "${default}",
-            "cppStandard": "${default}",
-            "intelliSenseMode": "windows-gcc-x64",
-            "compilerArgs": [
-                ""
+                "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include-fixed"
             ],
+            "defines": [
+                "_WIN32_WINNT=0x0601",
+                "WIN32_LEAN_AND_MEAN"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64",
             "compilerPath": "C:/msys64/mingw64/bin/gcc.exe"
         }
     ],

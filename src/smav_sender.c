@@ -61,12 +61,46 @@ void cleanup_sender(void) {
     cleanup_network();
 }
 
+void log_message(const char* level, const char* format, ...) {
+    time_t now = time(NULL);
+    struct tm* tm_info = localtime(&now);
+    char time_str[20];
+    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
+    
+    printf("[%s] %s: ", time_str, level);
+    
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+    
+    printf("\n");
+    fflush(stdout);
+}
+
+void print_hex(const char* prefix, const uint8_t* data, size_t len) {
+    if (prefix && strlen(prefix) > 0) {
+        printf("%s", prefix);
+    }
+    
+    for (size_t i = 0; i < len; i++) {
+        printf("%02x ", data[i]);
+        if ((i + 1) % 16 == 0) printf("\n");
+    }
+    if (len % 16 != 0) printf("\n");
+    fflush(stdout);
+    }
+
 int init_udp_sender(const char* server_ip) {
     client_socket = socket(AF_INET, SOCK_DGRAM, 0);
     if (client_socket < 0) {
         log_message("ERROR", "Socket creation failed: %s", strerror(errno));
         return -1;
     }
+
+    // Enable broadcast if needed
+    // int broadcast = 1;
+    // setsockopt(client_socket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast));
 
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
@@ -82,6 +116,8 @@ int init_udp_sender(const char* server_ip) {
     log_message("INFO", "UDP sender initialized for %s:%d", server_ip, SERVER_PORT);
     return 0;
 }
+
+
 
 // Send encrypted standard MAVLink packet
 int send_secure_mavlink(mavlink_message_t* inner_msg, uint8_t msg_type) {
@@ -311,41 +347,24 @@ int main(int argc, char* argv[]) {
     int cycle = 0;
     int fingerprint_sent = 0;
 
-    while (1) {
-        // Check for fingerprint confirmation via UART
+                //  int fingerprint_sent = 0;
+    
+ while (1) {
+        
         if (!fingerprint_sent) {
             int fingerprint_match = read_fingerprint_uart();
             if (fingerprint_match) {
                 if (send_fingerprint_confirmation(1, 1) == 0) {
                     fingerprint_sent = 1;
-                    log_message("INFO", "Fingerprint confirmation sent successfully");
+                    log_message("CRITICAL", "Fingerprint confirmation sent - ESP32 job done!");
+                    break; // Exit after sending approval
                 }
             }
         }
-
-        // Send regular telemetry data
-        if (send_gps_data() != 0) {
-            log_message("ERROR", "Failed to send GPS data");
-            break;
-        }
-
-        if (send_imu_data() != 0) {
-            log_message("ERROR", "Failed to send IMU data");
-            break;
-        }
-
-        // Send heartbeat every 10 cycles
-        if (cycle % 10 == 0) {
-            if (send_heartbeat() != 0) {
-                log_message("ERROR", "Failed to send heartbeat");
-                break;
-            }
-        }
-
-        cycle++;
-        log_message("DEBUG", "Cycle %d completed", cycle);
-        Sleep(1000);
+        
+        Sleep(1000); // Check fingerprint every second
     }
-
+    
+    log_message("INFO", "ESP32 authentication complete. Shutting down.");
     return 0;
 }

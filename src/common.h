@@ -29,10 +29,10 @@
 #endif
 
 // Fallback include path from existing version
-#include "generated_common/mavlink.h"
+#include "mavlink.h"
 
 // Port and buffer definitions - keeping both for compatibility
-#define SERVER_PORT 8888
+#define SERVER_PORT 
 #define DEFAULT_PORT 8080
 #define BUFFER_SIZE 1024
 #define MAX_RETRIES 3

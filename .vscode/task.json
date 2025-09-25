@@ -1,24 +1,21 @@
-
 {
     "version": "2.0.0",
     "tasks": [
         {
             "type": "shell",
-            "label": "Build Sender",
+            "label": "Build TCP Sender",
             "command": "C:/msys64/mingw64/bin/gcc.exe",
             "args": [
                 "-Wall", "-Wextra", "-std=c99", "-g",
-                "-D_WIN32_WINNT=0x0601", "-Isrc",
+                "-D_WIN32_WINNT=0x0601", 
+                "-Isrc", "-Ilibs/mbedtls/include",
                 "-o", "${workspaceFolder}/bin/sender.exe",
                 "${workspaceFolder}/src/sender.c",
                 "${workspaceFolder}/src/common.c",
                 "${workspaceFolder}/src/crypto_utils.c",
                 "-lmbedtls", "-lmbedx509", "-lmbedcrypto", "-lws2_32"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -26,17 +23,17 @@
                 "panel": "shared"
             },
             "problemMatcher": ["$gcc"],
-            "detail": "Build sender with MSYS2"
+            "detail": "Build TCP sender"
         },
         {
             "type": "shell",
-            "label": "Build Receiver",
+            "label": "Build TCP Receiver",
             "command": "C:/msys64/mingw64/bin/gcc.exe",
             "args": [
                 "-Wall", "-Wextra", "-std=c99", "-g",
-                "-D_WIN32_WINNT=0x0601", "-Isrc",
+                "-D_WIN32_WINNT=0x0601",
+                "-Isrc", "-Ilibs/mbedtls/include",
                 "-o", "${workspaceFolder}/bin/receiver.exe",
-                "-IC:/Users/Ajeet/drone_security_system/libs/mbedtls/include",
                 "${workspaceFolder}/src/receiver.c",
                 "${workspaceFolder}/src/common.c",
                 "${workspaceFolder}/src/crypto_utils.c",
@@ -50,13 +47,22 @@
                 "panel": "shared"
             },
             "problemMatcher": ["$gcc"],
-            "detail": "Build receiver with MSYS2"
+            "detail": "Build TCP receiver"
         },
         {
             "type": "shell",
-            "label": "Build All",
-            "dependsOrder": "sequence",
-            "dependsOn": ["Build Sender", "Build Receiver"],
+            "label": "Build MAVLink Sender (ESP32 Prototype)",
+            "command": "C:/msys64/mingw64/bin/gcc.exe",
+            "args": [
+                "-Wall", "-Wextra", "-std=c99", "-g",
+                "-D_WIN32_WINNT=0x0601",
+                "-Isrc", "-Imavlink/generated_common", "-Ilibs/mbedtls/include",
+                "-o", "${workspaceFolder}/bin/mavlink_sender.exe",
+                "${workspaceFolder}/src/mavlink_sender.c",
+                "${workspaceFolder}/src/common.c",
+                "${workspaceFolder}/src/crypto_utils.c",
+                "-lmbedtls", "-lmbedx509", "-lmbedcrypto", "-lws2_32"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -64,21 +70,143 @@
                 "focus": false,
                 "panel": "shared"
             },
-            "detail": "Build both sender and receiver"
+            "problemMatcher": ["$gcc"],
+            "detail": "Build encrypted MAVLink sender (ESP32 prototype)"
         },
         {
             "type": "shell",
-            "label": "Test MSYS2 Setup",
+            "label": "Build MAVLink Receiver (FC Prototype)",
             "command": "C:/msys64/mingw64/bin/gcc.exe",
             "args": [
-                "--version"
+                "-Wall", "-Wextra", "-std=c99", "-g",
+                "-D_WIN32_WINNT=0x0601",
+                "-Isrc", "-Imavlink/generated_common", "-Ilibs/mbedtls/include",
+                "-o", "${workspaceFolder}/bin/mavlink_receiver.exe",
+                "${workspaceFolder}/src/mavlink_receiver.c",
+                "${workspaceFolder}/src/common.c",
+                "${workspaceFolder}/src/crypto_utils.c",
+                "-lmbedtls", "-lmbedx509", "-lmbedcrypto", "-lws2_32"
             ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Build encrypted MAVLink receiver (Flight Controller prototype)"
+        },
+        {
+            "type": "shell",
+            "label": "Build All TCP Apps",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Build TCP Sender", "Build TCP Receiver"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "detail": "Build TCP sender and receiver"
+        },
+        {
+            "type": "shell",
+            "label": "Build All MAVLink Apps",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Build MAVLink Sender (ESP32 Prototype)", "Build MAVLink Receiver (FC Prototype)"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "detail": "Build encrypted MAVLink sender and receiver"
+        },
+        {
+            "type": "shell",
+            "label": "Build Everything",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Build All TCP Apps", "Build All MAVLink Apps"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "detail": "Build all applications (TCP + encrypted MAVLink)"
+        },
+        {
+            "type": "shell",
+            "label": "Run MAVLink Receiver",
+            "command": "${workspaceFolder}/bin/mavlink_receiver.exe",
+            "args": [],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated"
+            },
+            "detail": "Start MAVLink receiver (Flight Controller simulator)"
+        },
+        {
+            "type": "shell",
+            "label": "Run MAVLink Sender",
+            "command": "${workspaceFolder}/bin/mavlink_sender.exe",
+            "args": ["127.0.0.1"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated"
+            },
+            "detail": "Start MAVLink sender (ESP32 simulator)"
+        },
+        {
+            "type": "shell",
+            "label": "Test MAVLink System",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Build All MAVLink Apps"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "detail": "Build and prepare MAVLink system for testing"
+        },
+        {
+            "type": "shell",
+            "label": "Clean Build",
+            "command": "rm",
+            "args": ["-rf", "${workspaceFolder}/bin"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always"
+            },
+            "detail": "Clean all build artifacts"
+        },
+        {
+            "type": "shell",
+            "label": "Check Project Structure",
+            "command": "bash",
+            "args": ["-c", "echo 'Checking project structure...' && ls -la src/ && echo 'MAVLink headers:' && ls mavlink/generated_common/ | head -5 && echo 'mbedTLS:' && ls libs/mbedtls/include/ | head -3"],
             "group": "test",
             "presentation": {
                 "echo": true,
                 "reveal": "always"
             },
-            "detail": "Verify MSYS2 installation"
+            "detail": "Verify project dependencies and structure"
         }
     ]
 }
